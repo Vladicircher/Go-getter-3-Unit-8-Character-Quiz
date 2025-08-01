@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grammar Quiz: Emma, Harry, George & Poppy</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 20px;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    h1 {
+      text-align: center;
+    }
+    .question {
+      margin: 20px 0;
+      padding: 10px;
+      background-color: #e8f0fe;
+      border-left: 5px solid #4285f4;
+    }
+    .options button {
+      display: block;
+      margin: 5px 0;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      background-color: #ddd;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .options button.correct {
+      background-color: #a5d6a7;
+    }
+    .options button.incorrect {
+      background-color: #ef9a9a;
+    }
+    .options button.disabled {
+      cursor: default;
+      pointer-events: none;
+    }
+    #scoreboard {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+    }
+    .emoji {
+      position: absolute;
+      font-size: 24px;
+      animation: floatUp 1s ease-out forwards;
+    }
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-80px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Grammar Challenge</h1>
+    <div id="quiz"></div>
+    <div id="scoreboard">
+      Correct: <span id="correctCount">0</span> |
+      Incorrect: <span id="incorrectCount">0</span>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "George ___ video games instead of vacuuming.", correct: "played", wrong: ["play", "playing"] },
+      { q: "Emma ___ the school hall for the fair.", correct: "decorated", wrong: ["decorate", "decorates"] },
+      { q: "Harry ___ Emma with the decorations.", correct: "didn’t help", wrong: ["helped", "helps"] },
+      { q: "Poppy ___ in bed because she was ill.", correct: "stayed", wrong: ["stays", "did stay"] },
+      { q: "Emma ___ her dance shoes from Poppy’s house.", correct: "didn’t take", wrong: ["took", "takes"] },
+      { q: "George ___ a famous singer in the park.", correct: "met", wrong: ["meet", "meets"] },
+      { q: "Harry ___ a selfie with the famous singer.", correct: "didn’t take", wrong: ["took", "takes"] },
+      { q: "Emma ___ lunch with Gran.", correct: "cooked", wrong: ["cooks", "cook"] },
+      { q: "Poppy ___ a new hairdryer with her mum.", correct: "bought", wrong: ["buy", "buys"] },
+      { q: "Harry ___ everything for the holiday.", correct: "didn’t pack", wrong: ["packed", "was packing"] },
+      { q: "Emma ___ her passport before the trip.", correct: "found", wrong: ["find", "finds"] },
+      { q: "George ___ a green bag as a gift.", correct: "chose", wrong: ["choose", "chooses"] },
+      { q: "Harry ___ a present for Gran’s birthday.", correct: "bought", wrong: ["buy", "buyed"] },
+      { q: "Poppy ___ to another school.", correct: "didn’t move", wrong: ["moved", "moves"] },
+      { q: "Emma ___ happy when she heard Poppy was staying.", correct: "felt", wrong: ["feel", "feels"] },
+      { q: "Gran ___ Emma to help move the furniture.", correct: "asked", wrong: ["ask", "asks"] },
+      { q: "George ___ vegetables with Gran.", correct: "chopped", wrong: ["chop", "chops"] },
+      { q: "Harry ___ TV when he was supposed to tidy.", correct: "watched", wrong: ["watch", "watching"] },
+      { q: "Emma ___ a party for the pop star.", correct: "didn’t organise", wrong: ["organised", "organises"] },
+      { q: "Poppy and Emma ___ best friends.", correct: "are", wrong: ["is", "be"] },
+      { q: "Harry ___ tennis in the afternoon when his friends met the pop star.", correct: "played", wrong: ["plays", "was play"] },
+      { q: "George ___ he was vacuuming while he played a video game.", correct: "said", wrong: ["says", "saying"] },
+      { q: "Emma ___ to pick up her shoes from Poppy’s bag.", correct: "went", wrong: ["goes", "go"] },
+      { q: "Poppy ___ on a jacket in the shop.", correct: "tried", wrong: ["tries", "try"] },
+      { q: "Emma ___ to Gran about changing the living room.", correct: "talked", wrong: ["talks", "talk"] },
+      { q: "George ___ apples for dessert.", correct: "didn’t bake", wrong: ["baked", "bakes"] },
+      { q: "Poppy ___ Adrianna in the park with George and Emma.", correct: "didn’t see", wrong: ["saw", "sees"] },
+      { q: "Harry ___ the suitcase before leaving for the airport.", correct: "didn’t close", wrong: ["closed", "closes"] },
+      { q: "Emma ___ with her parents.", correct: "didn’t live", wrong: ["lived", "lives"] },
+      { q: "George ___ a photo with Adrianna.", correct: "didn’t take", wrong: ["took", "takes"] }
+    ];
+
+    let correct = 0;
+    let incorrect = 0;
+    let currentQuestion = 0;
+
+    const quizDiv = document.getElementById('quiz');
+    const container = document.querySelector('.container');
+
+    function showEmoji(symbol) {
+      const existing = document.querySelector('.emoji');
+      if (existing) existing.remove();
+      const emoji = document.createElement('div');
+      emoji.className = 'emoji';
+      emoji.textContent = symbol;
+      emoji.style.left = Math.random() * 90 + '%';
+      container.appendChild(emoji);
+      setTimeout(() => emoji.remove(), 1000);
+    }
+
+    function showQuestion(index) {
+      quizDiv.innerHTML = '';
+      const item = questions[index];
+      const qDiv = document.createElement('div');
+      qDiv.className = 'question';
+
+      const qText = document.createElement('p');
+      qText.textContent = `${index + 1}. ${item.q}`;
+      qDiv.appendChild(qText);
+
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'options';
+
+      const allAnswers = [item.correct, ...item.wrong];
+      allAnswers.sort(() => Math.random() - 0.5);
+
+      allAnswers.forEach(ans => {
+        const btn = document.createElement('button');
+        btn.textContent = ans;
+        btn.onclick = () => {
+          const buttons = btn.parentElement.querySelectorAll('button');
+          buttons.forEach(b => b.classList.add('disabled'));
+
+          if (ans === item.correct) {
+            btn.classList.add('correct');
+            showEmoji('❤️');
+            correct++;
+            document.getElementById('correctCount').textContent = correct;
+          } else {
+            btn.classList.add('incorrect');
+            showEmoji('😢');
+            incorrect++;
+            document.getElementById('incorrectCount').textContent = incorrect;
+          }
+
+          setTimeout(() => {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+              showQuestion(currentQuestion);
+            } else {
+              quizDiv.innerHTML = '<h2>Quiz Complete!</h2><button id="restartBtn">Play Again</button>';
+              document.getElementById('restartBtn').onclick = () => location.reload();
+            }
+          }, 1000);
+        };
+        optionsDiv.appendChild(btn);
+      });
+
+      qDiv.appendChild(optionsDiv);
+      quizDiv.appendChild(qDiv);
+    }
+
+    showQuestion(currentQuestion);
+  </script>
+</body>
+</html>
